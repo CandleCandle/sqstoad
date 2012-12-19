@@ -11,17 +11,18 @@ import org.slf4j.LoggerFactory;
 
 public class App {
 	private static final Logger LOG = LoggerFactory.getLogger(App.class);
-	private static final String EU_WEST_1_ENDPOINT = "eu-west-1.queue.amazonaws.com";
+	private static final String EU_WEST_1_SQS_ENDPOINT = "sqs.eu-west-1.amazonaws.com";
+	private static final String EU_WEST_1_SNS_ENDPOINT = "sns.eu-west-1.amazonaws.com";
 
 	public static void main(String[] args) {
 
 		ClientConfiguration conf = createClientConfiguration();
 
 		AmazonSQSClient client = new AmazonSQSClient(conf);
-		client.setEndpoint(EU_WEST_1_ENDPOINT);
+		client.setEndpoint(EU_WEST_1_SQS_ENDPOINT);
 
 		AmazonSNSClient sns = new AmazonSNSClient(conf);
-		sns.setEndpoint(EU_WEST_1_ENDPOINT);
+		sns.setEndpoint(EU_WEST_1_SNS_ENDPOINT);
 
 		String action = args.length > 0 ? args[0] : "--help";
 
