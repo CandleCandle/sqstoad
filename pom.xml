@@ -3,7 +3,7 @@
 
 	<groupId>uk.me.candle</groupId>
 	<artifactId>sqsToad</artifactId>
-	<version>1.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>sqsToad</name>
