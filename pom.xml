@@ -14,6 +14,10 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
+	<scm>
+		<developerConnection>scm:git:git@github.com:CandleCandle/sqstoad.git</developerConnection>
+	</scm>
+
 	<dependencies>
 
 
