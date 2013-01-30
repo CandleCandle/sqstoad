@@ -5,7 +5,15 @@ import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sns.model.ListTopicsResult;
 import com.amazonaws.services.sns.model.Topic;
 import com.amazonaws.services.sqs.AmazonSQSClient;
+import com.amazonaws.services.sqs.model.DeleteMessageBatchRequest;
+import com.amazonaws.services.sqs.model.DeleteMessageBatchRequestEntry;
 import com.amazonaws.services.sqs.model.ListQueuesResult;
+import com.amazonaws.services.sqs.model.Message;
+import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
+import com.amazonaws.services.sqs.model.ReceiveMessageResult;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,16 +36,24 @@ public class App {
 
 		if("list-queues".equals(action)) listQueues(client);
 		else if("list-topics".equals(action)) listTopics(sns);
-//		else if ("drain-queue".equals(action)) drainQueue(client, args[1]);
-		else showHelp();
+		else if("drain-queue".equals(action)) {
+			if (args.length > 1) {
+				drainQueue(client, args[1]);
+			} else {
+				showHelp();
+			}
+		} else {
+			showHelp();
+		}
 	}
 
 	private static void showHelp() {
-		System.out.println("Usage: java -jar sqsToad.jar <action>");
+		System.out.println("Usage: java -jar sqsToad.jar <action> [action options]");
 		System.out.println("");
 		System.out.println("Actions:");
 		System.out.println("    list-queues");
 		System.out.println("    list-topics");
+		System.out.println("    drain-queue <queue-name>");
 		System.out.println("");
 	}
 
@@ -55,6 +71,34 @@ public class App {
 		for (Topic t : list.getTopics()) {
 			System.out.println(t.getTopicArn());
 		}
+	}
+
+
+	private static void drainQueue(AmazonSQSClient client, String queueName) {
+		int count = 0;
+		long startTime = System.currentTimeMillis();
+		while (true) {
+			ReceiveMessageResult r = client.receiveMessage(new ReceiveMessageRequest()
+					.withMaxNumberOfMessages(10)
+					.withQueueUrl(queueName));
+			List<DeleteMessageBatchRequestEntry> d = new ArrayList<DeleteMessageBatchRequestEntry>();
+			for (Message m : r.getMessages()) {
+				d.add(new DeleteMessageBatchRequestEntry()
+						.withId(m.getMessageId())
+						.withReceiptHandle(m.getReceiptHandle()));
+			}
+			if (d.size() > 0) {
+				client.deleteMessageBatch(new DeleteMessageBatchRequest()
+						.withQueueUrl(queueName)
+						.withEntries(d));
+				count = count + d.size();
+			}
+			else {
+				break;
+			}
+		}
+		long seconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTime);
+		System.out.println("Drained " + count + " messages in " + seconds + " seconds.");
 	}
 
 	private static ClientConfiguration createClientConfiguration() {
