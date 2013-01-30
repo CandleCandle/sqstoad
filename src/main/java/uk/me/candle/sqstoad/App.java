@@ -24,6 +24,13 @@ public class App {
 
 	public static void main(String[] args) {
 
+		/*
+		 *
+		 * better argument parsing & error messages
+		 * sqsToad -d <action> [params] to enable debug logging.
+		 *
+		 */
+
 		ClientConfiguration conf = createClientConfiguration();
 
 		AmazonSQSClient client = new AmazonSQSClient(conf);
