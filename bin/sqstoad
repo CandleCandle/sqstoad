@@ -1,4 +1,5 @@
 #!/bin/bash
 
+JAR=$(find $(dirname $0)/../target -name 'sqsToad-*-jar-with-dependencies.jar' | tail -n 1)
 
-java -jar $(dirname $0)/../target/sqsToad-1.0-jar-with-dependencies.jar $@
+java -jar $JAR $@
