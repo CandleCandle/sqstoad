@@ -2,6 +2,7 @@ package uk.me.candle.sqstoad;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.services.sns.AmazonSNSClient;
+import com.amazonaws.services.sns.model.ListTopicsRequest;
 import com.amazonaws.services.sns.model.ListTopicsResult;
 import com.amazonaws.services.sns.model.Topic;
 import com.amazonaws.services.sqs.AmazonSQSClient;
@@ -74,10 +75,15 @@ public class App {
 
 	private static void listTopics(AmazonSNSClient client) {
 		LOG.debug("Listing Topics");
-		ListTopicsResult list = client.listTopics();
-		for (Topic t : list.getTopics()) {
-			System.out.println(t.getTopicArn());
-		}
+        ListTopicsRequest request = new ListTopicsRequest();
+        ListTopicsResult list;
+        do {
+            list = client.listTopics(request);
+            for (Topic t : list.getTopics()) {
+                System.out.println(t.getTopicArn());
+            }
+            request = new ListTopicsRequest(list.getNextToken());
+        } while (list.getNextToken() != null);
 	}
 
 
