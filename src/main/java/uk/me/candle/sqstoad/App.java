@@ -12,9 +12,14 @@ import com.amazonaws.services.sqs.model.ListQueuesResult;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.ReceiveMessageResult;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +28,7 @@ public class App {
 	private static final String EU_WEST_1_SQS_ENDPOINT = "sqs.eu-west-1.amazonaws.com";
 	private static final String EU_WEST_1_SNS_ENDPOINT = "sns.eu-west-1.amazonaws.com";
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
 		/*
 		 *
@@ -44,7 +49,13 @@ public class App {
 
 		if("list-queues".equals(action)) listQueues(client);
 		else if("list-topics".equals(action)) listTopics(sns);
-		else if("drain-queue".equals(action)) {
+		else if("download-queue".equals(action)) {
+            if (args.length > 2) {
+                downloadQueue(client, args[1], args[2]);
+			} else {
+				showHelp();
+			}
+        } else if("drain-queue".equals(action)) {
 			if (args.length > 1) {
 				drainQueue(client, args[1]);
 			} else {
@@ -62,6 +73,7 @@ public class App {
 		System.out.println("    list-queues");
 		System.out.println("    list-topics");
 		System.out.println("    drain-queue <queue-name>");
+		System.out.println("    download-queue <queue-name> <file-name>");
 		System.out.println("");
 	}
 
@@ -87,8 +99,13 @@ public class App {
 	}
 
 
-	private static void drainQueue(AmazonSQSClient client, String queueName) {
-		int count = 0;
+	private static void drainQueue(AmazonSQSClient client, String queueName) throws IOException {
+        downloadQueue(client, queueName, "/dev/null");
+	}
+
+	private static void downloadQueue(AmazonSQSClient client, String queueName, String filename) throws IOException {
+        ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(filename));
+        int count = 0;
 		long startTime = System.currentTimeMillis();
 		while (true) {
 			ReceiveMessageResult r = client.receiveMessage(new ReceiveMessageRequest()
@@ -96,6 +113,16 @@ public class App {
 					.withQueueUrl(queueName));
 			List<DeleteMessageBatchRequestEntry> d = new ArrayList<DeleteMessageBatchRequestEntry>();
 			for (Message m : r.getMessages()) {
+                ZipEntry zipBody = new ZipEntry(queueName + "/" + m.getMessageId() + "/body");
+                zos.putNextEntry(zipBody);
+                zos.write(m.getBody().getBytes(Charset.defaultCharset()));
+                zos.closeEntry();
+
+                ZipEntry zipAttrs = new ZipEntry(queueName + "/" + m.getMessageId() + "/attributes");
+                zos.putNextEntry(zipAttrs);
+                zos.write(m.getAttributes().toString().getBytes(Charset.defaultCharset()));
+                zos.closeEntry();
+
 				d.add(new DeleteMessageBatchRequestEntry()
 						.withId(m.getMessageId())
 						.withReceiptHandle(m.getReceiptHandle()));
@@ -112,7 +139,7 @@ public class App {
 		}
 		long seconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTime);
 		System.out.println("Drained " + count + " messages in " + seconds + " seconds.");
-	}
+    }
 
 	private static ClientConfiguration createClientConfiguration() {
 		ClientConfiguration cc = new ClientConfiguration();
