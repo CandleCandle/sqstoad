@@ -100,43 +100,50 @@ public class App {
 
 
 	private static void drainQueue(AmazonSQSClient client, String queueName) throws IOException {
-        downloadQueue(client, queueName, "/dev/null");
+        downloadQueue(client, queueName, null);
 	}
 
 	private static void downloadQueue(AmazonSQSClient client, String queueName, String filename) throws IOException {
-        ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(filename));
+        ZipOutputStream zos = null;
+        long startTime = System.currentTimeMillis();
         int count = 0;
-		long startTime = System.currentTimeMillis();
-		while (true) {
-			ReceiveMessageResult r = client.receiveMessage(new ReceiveMessageRequest()
-					.withMaxNumberOfMessages(10)
-					.withQueueUrl(queueName));
-			List<DeleteMessageBatchRequestEntry> d = new ArrayList<DeleteMessageBatchRequestEntry>();
-			for (Message m : r.getMessages()) {
-                ZipEntry zipBody = new ZipEntry(queueName + "/" + m.getMessageId() + "/body");
-                zos.putNextEntry(zipBody);
-                zos.write(m.getBody().getBytes(Charset.defaultCharset()));
-                zos.closeEntry();
+        try {
+            if (filename != null) {
+                zos = new ZipOutputStream(new FileOutputStream(filename));
+            }
+            while (true) {
+                ReceiveMessageResult r = client.receiveMessage(new ReceiveMessageRequest()
+                        .withMaxNumberOfMessages(10)
+                        .withQueueUrl(queueName));
+                List<DeleteMessageBatchRequestEntry> d = new ArrayList<DeleteMessageBatchRequestEntry>();
+                for (Message m : r.getMessages()) {
+                    if (zos != null) {
+                        ZipEntry zipBody = new ZipEntry(queueName + "/" + m.getMessageId() + "/body");
+                        zos.putNextEntry(zipBody);
+                        zos.write(m.getBody().getBytes(Charset.defaultCharset()));
+                        zos.closeEntry();
 
-                ZipEntry zipAttrs = new ZipEntry(queueName + "/" + m.getMessageId() + "/attributes");
-                zos.putNextEntry(zipAttrs);
-                zos.write(m.getAttributes().toString().getBytes(Charset.defaultCharset()));
-                zos.closeEntry();
-
-				d.add(new DeleteMessageBatchRequestEntry()
-						.withId(m.getMessageId())
-						.withReceiptHandle(m.getReceiptHandle()));
-			}
-			if (d.size() > 0) {
-				client.deleteMessageBatch(new DeleteMessageBatchRequest()
-						.withQueueUrl(queueName)
-						.withEntries(d));
-				count = count + d.size();
-			}
-			else {
-				break;
-			}
-		}
+                        ZipEntry zipAttrs = new ZipEntry(queueName + "/" + m.getMessageId() + "/attributes");
+                        zos.putNextEntry(zipAttrs);
+                        zos.write(m.getAttributes().toString().getBytes(Charset.defaultCharset()));
+                        zos.closeEntry();
+                    }
+                    d.add(new DeleteMessageBatchRequestEntry()
+                            .withId(m.getMessageId())
+                            .withReceiptHandle(m.getReceiptHandle()));
+                }
+                if (d.size() > 0) {
+                    client.deleteMessageBatch(new DeleteMessageBatchRequest()
+                            .withQueueUrl(queueName)
+                            .withEntries(d));
+                    count += d.size();
+                } else {
+                    break;
+                }
+            }
+        } finally {
+            if (zos != null) zos.close();
+        }
 		long seconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTime);
 		System.out.println("Drained " + count + " messages in " + seconds + " seconds.");
     }
