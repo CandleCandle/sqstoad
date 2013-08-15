@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 public class UploadQueue extends AbstractCliAction {
     private static final Logger LOG = LoggerFactory.getLogger(UploadQueue.class);
 
-    @Argument(index = 0, metaVar = "queue", hidden = false, usage = "The name of the queue to enqueue the items")
+    @Argument(index = 0, metaVar = "queueName", hidden = false, usage = "The name of the queue to enqueue the items")
     private String queueToDownload;
 
     @Argument(index = 1, metaVar = "filename", hidden = false, usage = "Filename to read the messages from - should be in a format as produced by 'download-queue'")

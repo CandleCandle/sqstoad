@@ -14,11 +14,16 @@ public class Help implements CliAction {
 
         builder.append("Detailed usage:\n");
         for (CliAction.Actions action : CliAction.Actions.values()) {
-            builder.append("\t").append(action.getCommand()).append("\n");
+            builder.append("\t").append(action.getCommand());
             CmdLineParser parser = new CmdLineParser(action.newInstance(null));
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            parser.printUsage(baos);
-            builder.append(new String(baos.toByteArray())).append("\n");
+
+            ByteArrayOutputStream baos1 = new ByteArrayOutputStream();
+            parser.printSingleLineUsage(baos1);
+            builder.append(new String(baos1.toByteArray())).append("\n");
+
+            ByteArrayOutputStream baos2 = new ByteArrayOutputStream();
+            parser.printUsage(baos2);
+            builder.append(new String(baos2.toByteArray())).append("\n");
         }
 
         System.out.println(builder.toString());
