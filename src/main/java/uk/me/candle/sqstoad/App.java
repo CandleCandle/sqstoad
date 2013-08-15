@@ -1,6 +1,7 @@
 package uk.me.candle.sqstoad;
 
 import com.amazonaws.ClientConfiguration;
+import com.google.common.collect.Lists;
 import java.util.Arrays;
 import org.kohsuke.args4j.CmdLineParser;
 import org.slf4j.Logger;
@@ -21,6 +22,8 @@ public class App {
             if (action.getCommand().equals(command)) {
                 CliAction cmd = action.newInstance(conf);
                 CmdLineParser parser = new CmdLineParser(cmd);
+                LOG.debug("action: {}", cmd.getClass().getName());
+                LOG.debug("args: {}", Lists.newArrayList(Arrays.copyOfRange(args, 1, args.length)));
                 parser.parseArgument(Arrays.copyOfRange(args, 1, args.length));
 
                 cmd.call();

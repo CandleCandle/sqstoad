@@ -18,7 +18,10 @@ public interface CliAction extends Callable<Void> {
             @Override public CliAction newInstance(ClientConfiguration clientConfiguration) { return new DrainQueue(clientConfiguration); }
         },
         DOWNLOAD_QUEUE("download-queue") {
-            @Override public CliAction newInstance(ClientConfiguration clientConfiguration) { return new DrainQueue(clientConfiguration); }
+            @Override public CliAction newInstance(ClientConfiguration clientConfiguration) { return new DownloadQueue(clientConfiguration); }
+        },
+        UPLOAD_QUEUE("upload-queue") {
+            @Override public CliAction newInstance(ClientConfiguration clientConfiguration) { return new UploadQueue(clientConfiguration); }
         },
         ;
 
