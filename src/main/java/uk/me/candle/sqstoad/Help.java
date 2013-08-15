@@ -39,7 +39,7 @@ public class Help implements CliAction {
 
                 ByteArrayOutputStream baos2 = new ByteArrayOutputStream();
                 parser.printUsage(baos2);
-                builder.append(new String(baos2.toByteArray())).append("\n");
+                builder.append("\t\t").append(new String(baos2.toByteArray()).replace("\n", "\n\t\t")).append("\n");
             }
         }
 
