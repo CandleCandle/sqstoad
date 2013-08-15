@@ -7,7 +7,7 @@ import org.kohsuke.args4j.Argument;
 
 public class DrainQueue extends AbstractCliAction {
 
-    @Argument(index = 0, metaVar = "queueName", hidden = false, usage = "The name of the queue to drain")
+    @Argument(index = 0, metaVar = "queueName", required = true, hidden = false, usage = "The name of the queue to drain")
     private String queueToDrain;
 
     public DrainQueue(ClientConfiguration clientConfiguration) {
