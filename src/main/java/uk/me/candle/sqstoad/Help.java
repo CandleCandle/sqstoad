@@ -14,7 +14,7 @@ public class Help implements CliAction {
 
         builder.append("Detailed usage:\n");
         for (CliAction.Actions action : CliAction.Actions.values()) {
-            builder.append("\t").append(action.getCommand());
+            builder.append("\t").append(action.getCommand()).append("\n");
             CmdLineParser parser = new CmdLineParser(action.newInstance(null));
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             parser.printUsage(baos);

@@ -19,10 +19,10 @@ import org.kohsuke.args4j.Argument;
 
 public class DownloadQueue extends AbstractCliAction {
 
-    @Argument(index = 0, hidden = false, usage = "The name of the queue to download")
+    @Argument(index = 0, metaVar = "queueName", hidden = false, usage = "The name of the queue to download")
     private String queueToDownload;
 
-    @Argument(index = 1, hidden = false, usage = "Filename to create and write the messages into.")
+    @Argument(index = 1, metaVar = "filename", hidden = false, usage = "Filename to create and write the messages into.")
     private String filenameToCreate;
 
     public DownloadQueue(ClientConfiguration clientConfiguration) {
