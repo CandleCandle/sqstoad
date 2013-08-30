@@ -23,6 +23,9 @@ public interface CliAction extends Callable<Void> {
         UPLOAD_QUEUE("upload-queue") {
             @Override public CliAction newInstance(ClientConfiguration clientConfiguration) { return new UploadQueue(clientConfiguration); }
         },
+        ENQUEUE_SINGLE("enqueue-single") {
+            @Override public CliAction newInstance(ClientConfiguration clientConfiguration) { return new EnqueueSingle(clientConfiguration); }
+        }
         ;
 
         private final String command;
