@@ -3,7 +3,7 @@
 
 	<groupId>uk.me.candle</groupId>
 	<artifactId>sqsToad</artifactId>
-	<version>1.2.1-SNAPSHOT</version>
+	<version>1.3.0</version>
 	<packaging>jar</packaging>
 
 	<name>sqsToad</name>
@@ -15,7 +15,8 @@
 
 	<scm>
 		<developerConnection>scm:git:git@github.com:CandleCandle/sqstoad.git</developerConnection>
-	</scm>
+	  <tag>sqsToad-1.3.0</tag>
+  </scm>
 
 	<dependencies>
 
