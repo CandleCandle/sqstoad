@@ -16,40 +16,40 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ListQueueSubscriptions extends AbstractCliAction {
-    private static final Logger LOG = LoggerFactory.getLogger(ListQueueSubscriptions.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ListQueueSubscriptions.class);
 
-    @Argument(index = 0, metaVar = "queueName", required = true, hidden = false, usage = "The name of the queue for which to find subscriptions.")
-    private String queue;
+	@Argument(index = 0, metaVar = "queueName", required = true, hidden = false, usage = "The name of the queue for which to find subscriptions.")
+	private String queue;
 
 
-    public ListQueueSubscriptions(ClientConfiguration clientConfiguration) {
-        super(clientConfiguration);
-    }
+	public ListQueueSubscriptions(ClientConfiguration clientConfiguration) {
+		super(clientConfiguration);
+	}
 
-    public Void call() throws Exception {
-        listQueues(getSnsClient(), queue);
-        return null;
-    }
+	public Void call() throws Exception {
+		listQueues(getSnsClient(), queue);
+		return null;
+	}
 
 	private static void listQueues(AmazonSNS sns, String queue) {
-        ListSubscriptionsRequest request = new ListSubscriptionsRequest();
-        ListSubscriptionsResult result;
-        do {
-            result = sns.listSubscriptions(request);
-            for (Subscription sub : result.getSubscriptions()) {
-                if ("sqs".equals(sub.getProtocol())) {
-                    String name = sub.getEndpoint().replaceFirst(".*:", "");
-                    if (name.startsWith(queue)) {
-                        System.out.println(
-                                sub.getEndpoint()
-                                + ","
-                                + sub.getTopicArn()
-                                );
-                    }
-                }
-            }
-            request = request.withNextToken(result.getNextToken());
-        } while (result.getNextToken() != null);
+		ListSubscriptionsRequest request = new ListSubscriptionsRequest();
+		ListSubscriptionsResult result;
+		do {
+			result = sns.listSubscriptions(request);
+			for (Subscription sub : result.getSubscriptions()) {
+				if ("sqs".equals(sub.getProtocol())) {
+					String name = sub.getEndpoint().replaceFirst(".*:", "");
+					if (name.startsWith(queue)) {
+						System.out.println(
+								sub.getEndpoint()
+								+ ","
+								+ sub.getTopicArn()
+								);
+					}
+				}
+			}
+			request = request.withNextToken(result.getNextToken());
+		} while (result.getNextToken() != null);
 
 	}
 

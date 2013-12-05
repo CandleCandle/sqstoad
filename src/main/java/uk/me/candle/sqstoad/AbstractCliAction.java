@@ -8,22 +8,22 @@ import com.amazonaws.services.sqs.AmazonSQSClient;
 
 public abstract class AbstractCliAction implements CliAction {
 
-    ClientConfiguration clientConfiguration;
+	ClientConfiguration clientConfiguration;
 
-    public AbstractCliAction(ClientConfiguration clientConfiguration) {
-        this.clientConfiguration = clientConfiguration;
-    }
+	public AbstractCliAction(ClientConfiguration clientConfiguration) {
+		this.clientConfiguration = clientConfiguration;
+	}
 
-    AmazonSQS getSqsClient() {
+	AmazonSQS getSqsClient() {
 		AmazonSQSClient client = new AmazonSQSClient(clientConfiguration);
 		client.setEndpoint(App.EU_WEST_1_SQS_ENDPOINT);
-        return client;
-    }
+		return client;
+	}
 
-    AmazonSNS getSnsClient() {
+	AmazonSNS getSnsClient() {
 		AmazonSNSClient client = new AmazonSNSClient(clientConfiguration);
 		client.setEndpoint(App.EU_WEST_1_SNS_ENDPOINT);
-        return client;
-    }
+		return client;
+	}
 
 }

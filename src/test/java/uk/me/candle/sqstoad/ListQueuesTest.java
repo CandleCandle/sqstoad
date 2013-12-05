@@ -25,64 +25,64 @@ import org.mockito.stubbing.Answer;
 public class ListQueuesTest {
 
 
-    @Mock private AmazonSQSClient client;
+	@Mock private AmazonSQSClient client;
 
 
-    @Before
-    public void setup() throws Exception { }
+	@Before
+	public void setup() throws Exception { }
 
-    @Test
-    public void listAFewQueues() throws Exception {
-        ListQueuesResult result = new ListQueuesResult().withQueueUrls("a", "b", "c");
+	@Test
+	public void listAFewQueues() throws Exception {
+		ListQueuesResult result = new ListQueuesResult().withQueueUrls("a", "b", "c");
 
-        when(client.listQueues(any(ListQueuesRequest.class))).thenReturn(result);
+		when(client.listQueues(any(ListQueuesRequest.class))).thenReturn(result);
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream out = new PrintStream(baos);
-        ListQueues.listQueues(out, client);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		PrintStream out = new PrintStream(baos);
+		ListQueues.listQueues(out, client);
 
-        List<String> expected = ImmutableList.of("a", "b", "c");
-        assertThat(new String(baos.toByteArray()), StringContainsInOrder.stringContainsInOrder(expected));
-    }
+		List<String> expected = ImmutableList.of("a", "b", "c");
+		assertThat(new String(baos.toByteArray()), StringContainsInOrder.stringContainsInOrder(expected));
+	}
 
-    @Test
-    public void listALotOfQueues() throws Exception {
+	@Test
+	public void listALotOfQueues() throws Exception {
 
-        List<String> results1000 = Lists.newArrayList();
-        List<String> resultsa = Lists.newArrayList();
-        List<String> resultsb = Lists.newArrayList();
-        for (int i = 0; i < 999; ++i) {
-            results1000.add("a" + i);
-            resultsa.add("a" + i);
-        }
-        results1000.add("b0");
-        for (int i = 0; i < 5; ++i) {
-            resultsb.add("b" + i);
-        }
-        final ListQueuesResult result1000 = new ListQueuesResult().withQueueUrls(results1000);
-        final ListQueuesResult resulta = new ListQueuesResult().withQueueUrls(resultsa);
-        final ListQueuesResult resultb = new ListQueuesResult().withQueueUrls(resultsb);
-        final ListQueuesResult resultOther = new ListQueuesResult().withQueueUrls(Lists.<String>newArrayList());
+		List<String> results1000 = Lists.newArrayList();
+		List<String> resultsa = Lists.newArrayList();
+		List<String> resultsb = Lists.newArrayList();
+		for (int i = 0; i < 999; ++i) {
+			results1000.add("a" + i);
+			resultsa.add("a" + i);
+		}
+		results1000.add("b0");
+		for (int i = 0; i < 5; ++i) {
+			resultsb.add("b" + i);
+		}
+		final ListQueuesResult result1000 = new ListQueuesResult().withQueueUrls(results1000);
+		final ListQueuesResult resulta = new ListQueuesResult().withQueueUrls(resultsa);
+		final ListQueuesResult resultb = new ListQueuesResult().withQueueUrls(resultsb);
+		final ListQueuesResult resultOther = new ListQueuesResult().withQueueUrls(Lists.<String>newArrayList());
 
-        when(client.listQueues(any(ListQueuesRequest.class))).then(new Answer<ListQueuesResult>() {
-            public ListQueuesResult answer(InvocationOnMock invocation) throws Throwable {
-                ListQueuesRequest request = (ListQueuesRequest)invocation.getArguments()[0];
-                if ("a".equals(request.getQueueNamePrefix())) return resulta;
-                if ("b".equals(request.getQueueNamePrefix())) return resultb;
-                if ("".equals(request.getQueueNamePrefix())) return result1000;
-                return resultOther;
-            }
-        });
+		when(client.listQueues(any(ListQueuesRequest.class))).then(new Answer<ListQueuesResult>() {
+			public ListQueuesResult answer(InvocationOnMock invocation) throws Throwable {
+				ListQueuesRequest request = (ListQueuesRequest)invocation.getArguments()[0];
+				if ("a".equals(request.getQueueNamePrefix())) return resulta;
+				if ("b".equals(request.getQueueNamePrefix())) return resultb;
+				if ("".equals(request.getQueueNamePrefix())) return result1000;
+				return resultOther;
+			}
+		});
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream out = new PrintStream(baos);
-        ListQueues.listQueues(out, client);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		PrintStream out = new PrintStream(baos);
+		ListQueues.listQueues(out, client);
 
-        List<String> expected = Lists.newArrayList(resultsa);
-        expected.addAll(resultsb);
-        Collections.sort(expected);
+		List<String> expected = Lists.newArrayList(resultsa);
+		expected.addAll(resultsb);
+		Collections.sort(expected);
 
-        assertThat(new String(baos.toByteArray()), StringContainsInOrder.stringContainsInOrder(expected));
-    }
+		assertThat(new String(baos.toByteArray()), StringContainsInOrder.stringContainsInOrder(expected));
+	}
 
 }
