@@ -28,7 +28,7 @@ public class CopyQueue extends AbstractCliAction {
 	@Argument(index = 1, metaVar = "filename", required = true, hidden = false, usage = "Filename to create and write the messages into.")
 	private String filenameToCreate;
     
-	@Argument(index = 2, metaVar = "timeout", required = false, hidden = false, usage = "Timeout (in seconds) to extend the visibility, set this higher for larger queues.")
+	@Argument(index = 2, metaVar = "timeout", required = false, hidden = false, usage = "Timeout (in seconds) to extend the visibility, set this higher for larger queues. Allow 10 seconds per 1000 messages on a good connection to AWS")
 	private int timeout = 60;
 
 	public CopyQueue(ClientConfiguration clientConfiguration) {
