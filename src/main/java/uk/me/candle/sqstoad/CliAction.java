@@ -20,6 +20,9 @@ public interface CliAction extends Callable<Void> {
 		DOWNLOAD_QUEUE("download-queue") {
 			@Override public CliAction newInstance(ClientConfiguration clientConfiguration) { return new DownloadQueue(clientConfiguration); }
 		},
+		COPY_QUEUE("copy-queue") {
+			@Override public CliAction newInstance(ClientConfiguration clientConfiguration) { return new CopyQueue(clientConfiguration); }
+		},
 		UPLOAD_QUEUE("upload-queue") {
 			@Override public CliAction newInstance(ClientConfiguration clientConfiguration) { return new UploadQueue(clientConfiguration); }
 		},
